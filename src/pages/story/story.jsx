@@ -24,7 +24,6 @@ export default function TestStoryPage() {
         setHistory([]);
 
         try {
-            // TODO: Replace this with your actual API call to Google GenAI
             const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
             if (!apiKey) {
@@ -38,6 +37,7 @@ export default function TestStoryPage() {
                 config: {
                     systemInstruction: SYSTEM_INSTRUCTION,
                     responseMimeType: "application/json",
+                    temperature: 1.2,
                 },
             });
             setChatSession(chat);
