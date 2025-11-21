@@ -5,5 +5,5 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   // TODO: Uncomment this when deploying to GitHub Pages or similar static hosting
-  // base: '/MONOMYTH.exe/',
+  base: '/MONOMYTH.exe/',
 })
