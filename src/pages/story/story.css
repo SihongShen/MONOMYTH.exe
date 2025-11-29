@@ -1,0 +1,207 @@
+/* === 核心容器 & 背景动画 === */
+.retro-container {
+    background-color: #000;
+    /* 核心：CRT 扫描线渐变 */
+    background: linear-gradient(to top, #000000, #000000 50%, #1a1a1a 50%, #1a1a1a);
+    background-size: 100% 4px; /* 稍微调大一点间距，避免在大屏幕上太晕 */
+    min-height: 100vh;
+    width: 100vw;
+    margin: 0;
+    font-family: "Courier New", Courier, monospace; /* 复古等宽字体 */
+    color: #33ff33; /* 经典的终端绿 */
+    text-shadow: 0 0 5px #33ff00, 0 0 10px #33ff00; /* 霓虹光晕 */
+    
+    /* 增加页边距 */
+    padding: 60px 20px; 
+    
+    /* 扫描线滚动动画 */
+    animation: scanlines 60s linear infinite;
+}
+
+/* 扫描线关键帧 */
+@keyframes scanlines {
+    from { background-position: 0 0; }
+    to { background-position: 0 1000px; }
+}
+
+/* === 布局组件 === */
+
+/* 标题居中 */
+.retro-title-main {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    border-bottom: 2px solid #33ff33;
+    padding-bottom: 1rem;
+    display: inline-block; /* 为了让下划线跟文字同宽 */
+}
+
+/* 输入框区域 */
+.retro-input-group {
+    border: 2px solid #33ff33;
+    padding: 1.5rem;
+    margin-bottom: 3rem;
+    background-color: rgba(0, 20, 0, 0.8);
+    box-shadow: 0 0 15px rgba(51, 255, 51, 0.2);
+    border-radius: 10px; /* 稍微圆角模拟旧屏幕边缘 */
+}
+
+.retro-input {
+    background: transparent;
+    border: none;
+    border-bottom: 2px dashed #33ff33;
+    color: #33ff33;
+    font-family: inherit;
+    font-size: 1.2rem;
+    padding: 0.5rem;
+    width: 100%;
+}
+
+.retro-input:focus {
+    outline: none;
+    border-bottom-style: solid;
+}
+
+/* 按钮样式 */
+.retro-btn {
+    background: #000;
+    border: 2px solid #33ff33;
+    color: #33ff33;
+    font-family: inherit;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 0 5px #33ff33;
+}
+
+.retro-btn:hover:not(:disabled) {
+    background: #33ff33;
+    color: #000;
+    text-shadow: none;
+}
+
+.retro-btn:disabled {
+    border-color: #555;
+    color: #555;
+    text-shadow: none;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+/* === 故事节点卡片 === */
+.retro-card {
+    border: 1px solid #33ff33;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    background-color: rgba(0, 0, 0, 0.7); /* 半透明黑，突出背景扫描线 */
+    box-shadow: 0 0 10px rgba(51, 255, 51, 0.3);
+    position: relative;
+    /* 这里的 filter: blur 会让字也有点模糊，模拟旧屏幕 */
+    /* 如果觉得字看不清，可以注释掉下面这行 */
+    backdrop-filter: blur(2px); 
+}
+
+/* 章节小标题：居中 */
+.retro-chapter-title {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    text-decoration: underline wavy #33ff33;
+}
+
+/* 步骤指示器 */
+.retro-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    opacity: 0.8;
+    border-bottom: 1px dotted #33ff33;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* 故事正文：左对齐 */
+.retro-text {
+    text-align: left;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+    white-space: pre-wrap; /* 保留换行 */
+}
+
+/* 选项按钮容器 */
+.retro-choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.retro-choice-btn {
+    text-align: left;
+    padding: 1rem;
+    border: 1px solid #33ff33;
+    background: transparent;
+    color: #33ff33;
+    font-family: inherit;
+    transition: all 0.3s;
+}
+
+.retro-choice-btn:hover:not(:disabled) {
+    background: rgba(51, 255, 51, 0.2);
+    box-shadow: inset 0 0 10px #33ff33;
+}
+
+/* 已选结果显示 */
+.retro-result {
+    border: 1px solid #555;
+    padding: 1rem;
+    background: rgba(50, 50, 50, 0.5);
+    color: #aaa;
+    font-style: italic;
+    text-shadow: none;
+}
+
+/* === 结局大标题 Modal === */
+.retro-modal-overlay {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    animation: fadeIn 1s ease-in;
+}
+
+.retro-modal-content {
+    border: 4px double #33ff33;
+    padding: 3rem;
+    width: 100vw;
+    max-height: 100vh;
+    background: #000;
+    text-align: center;
+    box-shadow: 0 0 50px #33ff33;
+    overflow-y: auto;
+}
+
+.retro-grand-title {
+    font-size: clamp(24px, 12vw, 56px);
+    font-weight: bold;
+    margin: 1.5rem 0;
+    line-height: 1.2;
+    text-transform: uppercase;
+    animation: pulsate 3s infinite alternate;
+}
+
+@keyframes pulsate {
+    100% { text-shadow: 0 0 20px #33ff33, 0 0 40px #33ff33; }
+    0%   { text-shadow: 0 0 5px #33ff33; }
+}
