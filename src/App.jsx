@@ -1,19 +1,23 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import './App.css'
+import OpeningPage from './pages/opening/opening.jsx';
 import TestStoryPage from './pages/story/story.jsx';
 
 function App() {
+    const [hasStarted, setHasStarted] = useState(false);
 
-  return (
-    <>
-      <TestStoryPage />
-    </>
-  )
+    return (
+      <>{ !hasStarted ? (
+        <OpeningPage onStart={() => setHasStarted(true)} />
+      ) : (
+        <TestStoryPage />
+      )}
+      </>
+    )
 }
 
 export default App
 
-// 开始等待阶段 click to begin
 // 前置输入阶段 name；gender；core word/question
 // 故事+选择阶段 
 //     llm api给文字和选项

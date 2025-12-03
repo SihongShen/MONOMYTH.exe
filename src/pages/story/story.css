@@ -1,7 +1,6 @@
-/* === 核心容器 & 背景动画 === */
+/* background */
 .retro-container {
     background-color: #000;
-    /* 核心：CRT 扫描线渐变 */
     background: linear-gradient(to top, #000000, #000000 50%, #1a1a1a 50%, #1a1a1a);
     background-size: 100% 4px; /* 稍微调大一点间距，避免在大屏幕上太晕 */
     min-height: 100vh;
@@ -11,22 +10,17 @@
     color: #33ff33; /* 经典的终端绿 */
     text-shadow: 0 0 5px #33ff00, 0 0 10px #33ff00; /* 霓虹光晕 */
     
-    /* 增加页边距 */
     padding: 60px 20px; 
     
-    /* 扫描线滚动动画 */
     animation: scanlines 60s linear infinite;
 }
 
-/* 扫描线关键帧 */
 @keyframes scanlines {
     from { background-position: 0 0; }
     to { background-position: 0 1000px; }
 }
 
-/* === 布局组件 === */
-
-/* 标题居中 */
+/* heading */
 .retro-title-main {
     text-align: center;
     font-size: 2rem;
@@ -36,7 +30,7 @@
     letter-spacing: 0.2em;
     border-bottom: 2px solid #33ff33;
     padding-bottom: 1rem;
-    display: inline-block; /* 为了让下划线跟文字同宽 */
+    display: inline-block;
 }
 
 /* 输入框区域 */
