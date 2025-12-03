@@ -1,0 +1,102 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+
+:root {
+  --terminal-bg: #00000000;
+  --terminal-green: #00ff41;
+  --terminal-dim-green: #008f11;
+  --terminal-text-main: #e0e0e0;
+}
+
+.monomyth-header {
+  background-color: var(--terminal-bg);
+  width: 100%; /* 确保占满宽度 */
+  box-sizing: border-box; /* 防止 padding 撑大宽度 */
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px 40px;
+  font-family: 'Courier Prime', 'Courier New', monospace;
+  user-select: none;
+  border-bottom: 1px solid rgb(9, 252, 70);
+}
+
+/* 左侧区域 */
+.header-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.title-row {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+
+.main-title {
+  font-family: 'Courier Prime', serif;
+  font-weight: 700;
+  font-size: 2.5rem;
+  letter-spacing: 0.1em;
+  color: var(--terminal-text-main);
+  text-shadow: 0 0 5px rgba(224, 224, 224, 0.4);
+  margin: 0;
+  line-height: 1;
+}
+
+.extension {
+  font-family: 'VT323', monospace;
+  font-size: 1rem;
+  color: var(--terminal-dim-green);
+  margin-left: 5px;
+  transform: translateY(-10px);
+}
+
+.sub-info {
+  font-family: 'VT323', monospace;
+  font-size: 0.9rem;
+  color: var(--terminal-dim-green);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.status-icon {
+  width: 24px;
+  height: 24px;
+  stroke: var(--terminal-dim-green);
+  filter: drop-shadow(0 0 2px var(--terminal-dim-green));
+}
+
+.status-icon path {
+  animation: pulse-line 2s infinite;
+}
+
+.status-text {
+  font-family: 'VT323', monospace;
+  font-size: 1rem;
+  color: var(--terminal-dim-green);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+@keyframes pulse-line {
+  0% { stroke-opacity: 0.5; }
+  50% { stroke-opacity: 1; }
+  100% { stroke-opacity: 0.5; }
+}
+
+@media (max-width: 600px) {
+  .monomyth-header {
+    flex-direction: column;
+    padding: 15px;
+  }
+  .header-right {
+    align-self: flex-end;
+  }
+}

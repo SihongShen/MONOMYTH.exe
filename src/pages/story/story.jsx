@@ -4,6 +4,7 @@ import { SYSTEM_INSTRUCTION, MAX_STEPS } from '../../constants.js';
 import { GoogleGenAI } from "@google/genai";
 // css file
 import './story.css';
+import Header from '../../components/header/header.jsx';
 
 export default function TestStoryPage() {
     const [seed, setSeed] = useState('');
@@ -120,10 +121,7 @@ export default function TestStoryPage() {
 
    return (
         <div className="retro-container" >
-            {/* 顶部标题区 - 居中 */}
-            <div className="text-center mb-10">
-                <h1 className="retro-title-main">MONOMYTH TERMINAL</h1>
-            </div>
+            <Header />
 
             {/* 输入区 - 模拟旧控制台 */}
             <div className="retro-input-group max-w-3xl mx-auto">

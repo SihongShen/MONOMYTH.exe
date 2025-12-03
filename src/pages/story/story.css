@@ -1,16 +1,20 @@
+.root {
+    overflow: hidden;
+}
+
 /* background */
 .retro-container {
     background-color: #000;
-    background: linear-gradient(to top, #000000, #000000 50%, #1a1a1a 50%, #1a1a1a);
-    background-size: 100% 4px; /* 稍微调大一点间距，避免在大屏幕上太晕 */
+    background: linear-gradient(to top, #000000, #000000 40%, #1a1a1a 60%, #1a1a1a);
+    background-size: 100% 8px;
     min-height: 100vh;
     width: 100vw;
     margin: 0;
-    font-family: "Courier New", Courier, monospace; /* 复古等宽字体 */
-    color: #33ff33; /* 经典的终端绿 */
-    text-shadow: 0 0 5px #33ff00, 0 0 10px #33ff00; /* 霓虹光晕 */
+    font-family: "Courier New", Courier, monospace;
+    color: #33ff33;
+    text-shadow: 0 0 5px #33ff00, 0 0 10px #33ff00;
     
-    padding: 60px 20px; 
+    padding: 20px; 
     
     animation: scanlines 60s linear infinite;
 }
