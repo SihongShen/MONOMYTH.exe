@@ -1,21 +1,18 @@
 .root {
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
-/* background */
 .retro-container {
     background-color: #000;
-    background: linear-gradient(to top, #000000, #000000 40%, #1a1a1a 60%, #1a1a1a);
-    background-size: 100% 8px;
+    background: linear-gradient(to top, #000000, #000000 40%, #111 60%, #111);
+    background-size: 100% 4px;
     min-height: 100vh;
     width: 100vw;
     margin: 0;
     font-family: "Courier New", Courier, monospace;
     color: #33ff33;
-    text-shadow: 0 0 5px #33ff00, 0 0 10px #33ff00;
-    
-    padding: 20px; 
-    
+    text-shadow: 0 0 3px #33ff00;
+    padding-bottom: 50px;
     animation: scanlines 60s linear infinite;
 }
 
@@ -24,182 +21,205 @@
     to { background-position: 0 1000px; }
 }
 
-/* heading */
-.retro-title-main {
-    text-align: center;
-    font-size: 2rem;
-    font-weight: bold;
-    margin-bottom: 2rem;
-    text-transform: uppercase;
-    letter-spacing: 0.2em;
-    border-bottom: 2px solid #33ff33;
-    padding-bottom: 1rem;
-    display: inline-block;
-}
-
-/* 输入框区域 */
-.retro-input-group {
-    border: 2px solid #33ff33;
-    padding: 1.5rem;
-    margin-bottom: 3rem;
-    background-color: rgba(0, 20, 0, 0.8);
-    box-shadow: 0 0 15px rgba(51, 255, 51, 0.2);
-    border-radius: 10px; /* 稍微圆角模拟旧屏幕边缘 */
-}
-
-.retro-input {
-    background: transparent;
-    border: none;
-    border-bottom: 2px dashed #33ff33;
-    color: #33ff33;
-    font-family: inherit;
-    font-size: 1.2rem;
-    padding: 0.5rem;
-    width: 100%;
-}
-
-.retro-input:focus {
-    outline: none;
-    border-bottom-style: solid;
-}
-
-/* 按钮样式 */
-.retro-btn {
-    background: #000;
-    border: 2px solid #33ff33;
-    color: #33ff33;
-    font-family: inherit;
-    font-weight: bold;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: 0 0 5px #33ff33;
-}
-
-.retro-btn:hover:not(:disabled) {
-    background: #33ff33;
-    color: #000;
-    text-shadow: none;
-}
-
-.retro-btn:disabled {
-    border-color: #555;
-    color: #555;
-    text-shadow: none;
-    box-shadow: none;
-    cursor: not-allowed;
-}
-
-/* === 故事节点卡片 === */
-.retro-card {
-    border: 1px solid #33ff33;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    background-color: rgba(0, 0, 0, 0.7); /* 半透明黑，突出背景扫描线 */
-    box-shadow: 0 0 10px rgba(51, 255, 51, 0.3);
-    position: relative;
-    /* 这里的 filter: blur 会让字也有点模糊，模拟旧屏幕 */
-    /* 如果觉得字看不清，可以注释掉下面这行 */
-    backdrop-filter: blur(2px); 
-}
-
-/* 章节小标题：居中 */
-.retro-chapter-title {
-    text-align: center;
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin-bottom: 1rem;
-    text-decoration: underline wavy #33ff33;
-}
-
-/* 步骤指示器 */
-.retro-meta {
+.status-bar {
+    max-width: 900px;
+    margin: 0 auto 2rem auto;
+    padding: 1rem 2rem;
     display: flex;
     justify-content: space-between;
     font-size: 0.8rem;
-    opacity: 0.8;
-    border-bottom: 1px dotted #33ff33;
-    padding-bottom: 0.5rem;
-    margin-bottom: 1.5rem;
+    color: #555;
+    border-bottom: 1px dashed #333;
 }
 
-/* 故事正文：左对齐 */
+.reset-btn {
+    background: none;
+    border: none;
+    color: #555;
+    text-decoration: underline;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+}
+.reset-btn:hover {
+    color: #ff3333;
+}
+
+.error-msg {
+    max-width: 900px;
+    margin: 1rem auto;
+    padding: 1rem;
+    border: 1px solid #ff3333;
+    color: #ff3333;
+    background: rgba(50, 0, 0, 0.5);
+}
+
+.story-log {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 4rem;
+    padding-bottom: 5rem;
+}
+
+.story-node {
+    margin-bottom: 3rem;
+    position: relative;
+    /* border-left: 2px solid #1a1a1a; */
+    padding-left: 2rem;
+}
+
+.node-title {
+    text-align: left;
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    margin-top: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
 .retro-text {
     text-align: left;
     font-size: 1.1rem;
-    line-height: 1.8;
-    margin-bottom: 1.5rem;
-    white-space: pre-wrap; /* 保留换行 */
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    white-space: pre-wrap;
+    min-height: 1.6em;
 }
 
-/* 选项按钮容器 */
+.cursor {
+    display: inline-block;
+    width: 10px;
+    height: 1.2em;
+    background-color: #33ff33;
+    vertical-align: text-bottom;
+    animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
 .retro-choices {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
     margin-top: 1rem;
+    max-width: 80%;
 }
 
 .retro-choice-btn {
     text-align: left;
-    padding: 1rem;
-    border: 1px solid #33ff33;
+    padding: 0.8rem 1rem;
     background: transparent;
+    border: 1px solid #33ff33;
     color: #33ff33;
     font-family: inherit;
-    transition: all 0.3s;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    opacity: 0;
+    animation: fadeIn 0.5s forwards;
+}
+
+.retro-choice-btn:nth-child(1) { animation-delay: 0.1s; }
+.retro-choice-btn:nth-child(2) { animation-delay: 0.3s; }
+
+@keyframes fadeIn {
+    to { opacity: 1; }
 }
 
 .retro-choice-btn:hover:not(:disabled) {
-    background: rgba(51, 255, 51, 0.2);
-    box-shadow: inset 0 0 10px #33ff33;
+    background: #33ff33;
+    color: #000;
 }
 
-/* 已选结果显示 */
-.retro-result {
-    border: 1px solid #555;
-    padding: 1rem;
-    background: rgba(50, 50, 50, 0.5);
-    color: #aaa;
-    font-style: italic;
-    text-shadow: none;
+.retro-choice-btn:disabled {
+    border-color: #334433;
+    color: #334433;
+    cursor: not-allowed;
 }
 
-/* === 结局大标题 Modal === */
-.retro-modal-overlay {
+.selected-result {
+    margin-top: 1.5rem;
+    color: #33ff33;
+    border: none;
+    font-style: normal;
+    padding: 0;
+}
+
+.system-msg {
+    text-align: left;
+    padding: 2rem 0;
+    font-size: 0.9rem;
+    color: #33ff33;
+    opacity: 0.7;
+}
+
+.modal-overlay {
     position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.9);
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.95);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 50;
-    animation: fadeIn 1s ease-in;
+    z-index: 100;
 }
 
-.retro-modal-content {
-    border: 4px double #33ff33;
-    padding: 3rem;
-    width: 100vw;
-    max-height: 100vh;
-    background: #000;
-    text-align: center;
-    box-shadow: 0 0 50px #33ff33;
+.modal-content {
+    border: 2px solid #33ff33;
+    padding: 4rem;
+    max-width: 90%;
+    max-height: 90vh;
     overflow-y: auto;
+    text-align: center;
+    background: #000;
 }
 
-.retro-grand-title {
-    font-size: clamp(24px, 12vw, 56px);
-    font-weight: bold;
-    margin: 1.5rem 0;
-    line-height: 1.2;
+.grand-title {
+    font-size: 3rem;
+    margin: 2rem 0;
     text-transform: uppercase;
-    animation: pulsate 3s infinite alternate;
+    border-bottom: 2px solid #33ff33;
+    display: inline-block;
+    padding-bottom: 1rem;
 }
 
-@keyframes pulsate {
-    100% { text-shadow: 0 0 20px #33ff33, 0 0 40px #33ff33; }
-    0%   { text-shadow: 0 0 5px #33ff33; }
+.modal-text {
+    font-size: 1.2rem;
+    margin-bottom: 3rem;
+    font-style: italic;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.restart-btn {
+    padding: 1rem 3rem;
+    font-size: 1.2rem;
+    background: #000;
+    color: #33ff33;
+    border: 2px solid #33ff33;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: bold;
+}
+.restart-btn:hover {
+    background: #33ff33;
+    color: #000;
+}
+
+.click-to-open {
+    margin-top: 1rem;
+    cursor: pointer;
+    color: #33ff33;
+    font-weight: bold;
+    text-decoration: underline;
+    animation: blink 1s step-end infinite;
+}
+
+.click-to-open:hover {
+    color: #fff;
+    text-shadow: 0 0 5px #fff;
 }

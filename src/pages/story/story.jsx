@@ -5,6 +5,58 @@ import { GoogleGenAI } from "@google/genai";
 // css file
 import './story.css';
 import Header from '../../components/header/header.jsx';
+import HandChoiceController from '../../models/handChoice.jsx';
+
+// typewriter effect for story text
+const Typewriter = ({ text, speed = 20, isLatest, onComplete }) => {
+    const [displayedText, setDisplayedText] = useState('');
+    const currentTextRef = useRef('');
+    const hasCompletedRef = useRef(false);
+    
+    useEffect(() => {
+        if (!isLatest) {
+            setDisplayedText(text);
+            return;
+        }
+
+        if ( text != currentTextRef.current ) {
+            currentTextRef.current = text;
+            hasCompletedRef.current = false;
+            setDisplayedText('');
+        }
+
+        if (hasCompletedRef.current) {
+            return;
+        }
+
+        let i = displayedText.length;
+        if (i === 0 && text !== displayedText) {
+            setDisplayedText('');
+        }
+
+        const timer = setInterval(() => {
+            if (i < text.length) {
+                setDisplayedText((prev) => text.slice(0, prev.length + 1));
+                i++;
+            } else {
+                clearInterval(timer);
+                if (!hasCompletedRef.current) {
+                    hasCompletedRef.current = true;
+                    if (onComplete) onComplete();
+                }
+            }
+        }, speed);
+
+        return () => clearInterval(timer);
+    }, [text, isLatest, speed, onComplete]);
+
+    return (
+        <span>
+            {displayedText}
+            {isLatest && <span className="cursor"></span>}
+        </span>
+    );
+};
 
 export default function TestStoryPage({ seed, name }) {
     const [loading, setLoading] = useState(false);
@@ -12,16 +64,21 @@ export default function TestStoryPage({ seed, name }) {
     // for storing story nodes and contents
     const [chatSession, setChatSession] = useState(null);
     const [history, setHistory] = useState([]);
+    const [storyState, setStoryState] = useState('READING'); // reading choosing
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const hasInitialized = useRef(false);
 
     // auto-scroll to bottom when new content is added
     const bottomRef = useRef(null);
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [history, loading]);
+    }, [history, loading, history.length]);
 
     // Initialize game when seed and name are available
     useEffect(() => {
-        if (seed && name) {
+        if (seed && name && !hasInitialized.current) {
+            hasInitialized.current = true;
             initiateGame();
         }
     }, [seed, name]);
@@ -30,6 +87,8 @@ export default function TestStoryPage({ seed, name }) {
         setLoading(true);
         setError(null);
         setHistory([]);
+        setIsModalOpen(false);
+        setStoryState('READING');
 
         try {
             const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
@@ -58,21 +117,23 @@ export default function TestStoryPage({ seed, name }) {
             setHistory([node]);
 
         } catch (err) {
-        setError("Start Error " + err.message);
+            setError("Start Error " + err.message);
+            hasInitialized.current = false;
         } finally {
-        setLoading(false);
+            setLoading(false);
         }
     };
 
     const handleChoice =  async (choiceId, shortDesc) => {
         if(!chatSession) return;
-
+        
         // Update history with selected choice
         const currentStepIndex = history.length - 1;
         const newHistory = [...history];
         newHistory[currentStepIndex].selectedId = choiceId;
         setHistory(newHistory);
 
+        setStoryState('PROCESSING');
         setLoading(true);
 
         try {
@@ -87,11 +148,16 @@ export default function TestStoryPage({ seed, name }) {
             if (isEpilogue) {
                 prompt = `
                     User choice: ${choiceId} (${shortDesc}).
-                        MISSION: The journey is complete. Generate the **Epilogue** (Step ${nextStep}).
-                        1. Provide a final "narrative" wrapping up the soul's journey.
-                        2. Provide a "grandTitle" (The name of this specific myth).
-                        3. Leave "choices" empty [].
-                        4. Keep the language consistent with previous steps.
+                    MISSION: The journey is complete. Generate the **Epilogue** (Step ${nextStep}).
+                    
+                    REQUIRED JSON STRUCTURE:
+                    {
+                      "narrative": "Final reflection wrapping up the journey...",
+                      "grandTitle": "THE NAME OF THE MYTH (Required)",
+                      "choices": [],
+                      "step": ${nextStep},
+                      "stage": "THE END"
+                    }
                     `
             } else {
                     prompt = `
@@ -112,6 +178,8 @@ export default function TestStoryPage({ seed, name }) {
             if (isEpilogue) nextNode.stage = "THE END";
 
             setHistory(prev => [...prev, nextNode]);
+
+            setStoryState('READING');
         } catch (err) {
             setError("Choice Error: " + err.message);
         } finally {
@@ -124,110 +192,128 @@ export default function TestStoryPage({ seed, name }) {
         return JSON.parse(cleanJsonStr);
     }
 
-   return (
-        <div className="retro-container" >
-            <Header />
+    const handleTypewriterComplete = () => {
+        if (!loading) {
+            setStoryState('CHOOSING');
+        }
+    };
 
-            {/* 顶部状态栏：替代了原来的输入框，仅作展示 */}
-            <div className="max-w-3xl mx-auto mt-6 mb-6 px-4 flex justify-between text-xs text-gray-500 font-mono border-b border-gray-800 pb-2">
-                {/* 这里的 Reload 其实就是重置 App 状态，简单起见可以直接刷新页面 */}
-                <button onClick={() => window.location.reload()} className="hover:text-red-500 underline decoration-dotted">
+    const currentNode = history.length > 0 ? history[history.length - 1] : null;
+    const choices = currentNode?.choices || [];
+    const showHandControl = storyState === 'CHOOSING' && choices.length >=2 && !currentNode?.selectedId && !loading;
+
+    return (
+        <div className="retro-container">
+            <Header />
+            <div className="status-bar">
+                <button onClick={() => window.location.reload()} className="reset-btn">
                     [SYSTEM_RESET]
                 </button>
             </div>
 
-            {error && <div className="border border-red-500 text-red-500 p-4 mb-6 max-w-3xl mx-auto bg-black bg-opacity-50">ERROR: {error}</div>}
+            {error && <div className="error-msg">ERROR: {error}</div>}
 
-            {/* 故事列表区域 */}
-            <div className="max-w-3xl mx-auto pb-20">
+            {showHandControl && (
+                <HandChoiceController 
+                    leftOption={choices[0].shortDesc}  // 左边对应数组第一个
+                    rightOption={choices[1].shortDesc} // 右边对应数组第二个
+                    onSelect={(textLabel) => {
+                        // 回调返回的是文字，我们需要找回对应的 ID
+                        const choice = choices.find(c => c.shortDesc === textLabel);
+                        if (choice) {
+                            handleChoice(choice.id, choice.shortDesc);
+                        }
+                    }}
+                />
+            )}
+
+            <div className="story-log">
                 {history.map((node, index) => {
                     const userSelection = node.selectedId; 
                     const isLatest = index === history.length - 1;
+                    const selectedChoice = node.choices?.find(c => c.id === userSelection);
 
                     return (
-                        <div key={index} className="retro-card animate-fade-in">
-                            {/* 章节标题：居中 */}
+                        <div key={index} className="story-node">
                             {node.title && (
-                                <h3 className="retro-chapter-title">
+                                <h2 className="node-title">
                                     {node.title}
-                                </h3>
+                                </h2>
                             )}
-                            
-                            {/* Meta信息 */}
-                            <div className="retro-meta">
-                                <span>SEQ: {node.step || index + 1}</span>
-                                <span>STATUS: {node.stage || 'ACTIVE'}</span>
+
+                            <div className="retro-text">
+                                <Typewriter text={node.narrative} isLatest={isLatest} speed={25} onComplete={isLatest ? handleTypewriterComplete : undefined} />
                             </div>
 
-                            {/* 故事正文：左对齐 */}
-                            <p className="retro-text">
-                                {node.narrative}
-                            </p>
-
-                            {/* 选项区域 */}
                             {!userSelection ? (
-                                // 如果有选项且长度大于0
                                 node.choices && node.choices.length > 0 ? (
-                                    <div className="retro-choices">
-                                        {node.choices.map(c => (
-                                            <button
-                                                key={c.id}
-                                                onClick={() => handleChoice(c.id, c.shortDesc)}
-                                                disabled={loading || !isLatest}
-                                                className="retro-btn retro-choice-btn group"
-                                            >
-                                                <span className="block font-bold mb-1">[{c.id}] {c.shortDesc}</span>
-                                            </button>
-                                        ))}
-                                    </div>
+                                    (!isLatest || choices.length < 2) && (
+                                        <div className="retro-choices">
+                                            {node.choices.map(c => (
+                                                <button
+                                                    key={c.id}
+                                                    onClick={() => handleChoice(c.id, c.shortDesc)}
+                                                    disabled={loading || !isLatest}
+                                                    className="retro-choice-btn"
+                                                >
+                                                    [{c.id}] {c.shortDesc}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )
                                 ) : (
-                                    // 没选项了（结局前奏），等待 Modal 弹出
-                                    <div className="text-center py-4 text-sm animate-pulse">
-                                        ... END OF TRANSMISSION ...
+                                    <div className="system-msg">
+                                        <div>... END OF TRANSMISSION ...</div>
+                                        {node.grandTitle && (
+                                            <div 
+                                                className="click-to-open"
+                                                onClick={() => setIsModalOpen(true)}
+                                            >
+                                                &gt; CLICK TO HAVE THE BOOK
+                                            </div>
+                                        )}
                                     </div>
                                 )
                             ) : (
-                                // 已选结果
-                                <div className="retro-result mt-4">
-                                    <div className="text-xs border-b border-gray-600 mb-2 pb-1">LOG ENTRY: SELECTION [{userSelection}]</div>
-                                    <p>
-                                        {node.choices.find(c => c.id === userSelection)?.text}
-                                    </p>
+                                <div className="selected-result retro-text">
+                                    {selectedChoice && (
+                                        <Typewriter 
+                                            text={selectedChoice.text || `Action [${selectedChoice.id}] executed.`} 
+                                            isLatest={isLatest} 
+                                            speed={25} 
+                                        />
+                                     )}
                                 </div>
                             )}
                         </div>
                     );
                 })}
 
-                {/* Loading 状态 */}
                 {loading && (
-                    <div className="text-center py-6 animate-pulse">
-                        <span className="inline-block w-3 h-3 bg-green-500 mr-2"></span>
-                        PROCESSING DATA STREAM...
+                    <div className="system-msg">
+                        PROCESSING INCOMING DATA STREAM...
                     </div>
                 )}
                 
                 <div ref={bottomRef} />
             </div>
 
-            {/* Grand Title Modal - 结局大标题 */}
             {history.length > 0 && history[history.length - 1]?.grandTitle && (
-                <div className="retro-modal-overlay">
-                    <div className="retro-modal-content animate-fade-in">
-                        <h2 className="text-sm tracking-widest mb-4 border-b border-green-500 pb-2 inline-block">MYTHOS COMPLETE</h2>
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <div style={{color: '#555', marginBottom: '1rem'}}>MYTHOS COMPLETE</div>
                         
-                        {/* 大标题 */}
-                        <h1 className="retro-grand-title">
+                        <h1 className="grand-title">
                             {history[history.length - 1].grandTitle}
                         </h1>
                         
-                        <p className="retro-text text-center italic mb-8 px-8">
+                        <p className="modal-text">
                             {history[history.length - 1].narrative}
                         </p>
                         
                         <button 
                             onClick={() => window.location.reload()} 
-                            className="retro-btn px-10 py-4 text-xl"
+                            className="restart-btn"
                         >
                             INITIATE NEW CYCLE
                         </button>
