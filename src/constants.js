@@ -64,7 +64,7 @@ Instead, offer two different **Methods of Engagement**:
 1. Structure the output strictly as a JSON object.
 2. title: "<Short, Punchy Chapter Title. e.g. 'THE RUSTY GATE' or 'BLOOD AND OIL', based on user's seed word and >"
 3. Narrative segments must be under 120 words, atmospheric, and second-person ("You...").
-4. grandTitle: "<OPTIONAL. ONLY output this in the final Epilogue step. A majestic title for the myth.>"
+4. grandTitle: "< ONLY output this in the final Epilogue step. A majestic title for the myth.>"
 5. **choices**: [{
                 // If the story is continuing:
                     "id": "A",

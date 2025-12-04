@@ -1,18 +1,18 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { FilesetResolver, HandLandmarker } from '@mediapipe/tasks-vision';
 
 const styles = {
     container: {
-        position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
+        position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
         pointerEvents: 'none',
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20%',
         zIndex: 50
     },
 
     videoHidden: { display: 'none' },
 
     canvas: {
-        position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
+        position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
         zIndex: 1
     },
   
@@ -28,7 +28,8 @@ const styles = {
 
     text: {
         zIndex: 2, fontSize: '24px', fontWeight: 'bold', color: '#fff',
-        textShadow: '0 0 10px rgba(255,255,255,0.8)'
+        textShadow: '0 0 10px rgba(255,255,255,0.8)',
+        textAlign: 'center'
     },
 
     fillLayer: (color, progress) => ({
@@ -48,13 +49,14 @@ const styles = {
     }
 };
 
-// const HAND_CONNECTIONS = [
-//     [0, 1], [1, 2], [2, 3], [3, 4],
-//     [0, 5], [5, 6], [6, 7], [7, 8],
-//     [0, 9], [9, 10], [10, 11], [11, 12],
-//     [0, 13], [13, 14], [14, 15], [15, 16],
-//     [0, 17], [17, 18], [18, 19], [19, 20]
-// ]
+const GHOST_HAND = [
+    {x: 0.5, y: 0.8}, 
+    {x: 0.4, y: 0.75}, {x: 0.35, y: 0.7}, {x: 0.3, y: 0.65}, {x: 0.25, y: 0.6},
+    {x: 0.45, y: 0.5}, {x: 0.42, y: 0.4}, {x: 0.4, y: 0.3}, {x: 0.38, y: 0.2},
+    {x: 0.5, y: 0.48}, {x: 0.5, y: 0.35}, {x: 0.5, y: 0.25}, {x: 0.5, y: 0.15},
+    {x: 0.55, y: 0.5}, {x: 0.58, y: 0.4}, {x: 0.6, y: 0.3}, {x: 0.62, y: 0.2},
+    {x: 0.6, y: 0.6}, {x: 0.65, y: 0.55}, {x: 0.7, y: 0.5}, {x: 0.75, y: 0.45}
+];
 
 export default function HandChoiceController({ 
   leftOption = "Option A", 
@@ -130,29 +132,50 @@ export default function HandChoiceController({
     };
   }, [handLandmarker]);
 
-  const drawHand = (results) => {
+  const drawHand = useCallback((results) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
+    
+    // clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    if (results.landmarks && results.landmarks.length > 0) {
+    // real hand detected
+    if (results && results.landmarks && results.landmarks.length > 0) {
         const landmarks = results.landmarks[0];
 
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = '#00FFCC';
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = '#00FFCC';
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#00FFCC';
 
-      for (let i = 0; i < landmarks.length; i++) {
-        const x = (1 - landmarks[i].x) * canvas.width;
-        const y = landmarks[i].y * canvas.height;
+        for (let i = 0; i < landmarks.length; i++) {
+            const x = (1 - landmarks[i].x) * canvas.width;
+            const y = landmarks[i].y * canvas.height;
+            
+            ctx.beginPath();
+            ctx.arc(x, y, 6, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+    } 
+    // no hand detected
+    else {
+        const time = performance.now() / 400; 
+        const alpha = (Math.sin(time) + 1) / 2 * 0.4 + 0.1;
         
-        ctx.beginPath();
-        ctx.arc(x, y, 2, 0, 2 * Math.PI);
-        ctx.fill();
-      }
+        ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+        ctx.shadowBlur = 0;
+
+        for (let i = 0; i < GHOST_HAND.length; i++) {
+            const pt = GHOST_HAND[i];
+            const x = pt.x * canvas.width;
+            const y = pt.y * canvas.height;
+
+            ctx.beginPath();
+            ctx.arc(x, y, 6, 0, 2 * Math.PI);
+            ctx.fill();
+        }
     }
-  }
+  }, []);
 
   // 3. Determine selection based on hand position
   const handleGameLogic = (results) => {
@@ -166,8 +189,8 @@ export default function HandChoiceController({
       const x = 1 - rawX;
       
       // Logic decision area
-      const isLeft = x < 0.3; // Hand on the left 30% of the screen
-      const isRight = x > 0.7; // Hand on the right 30% of the screen
+      const isLeft = x < 0.4; // Hand on the left 40% of the screen
+      const isRight = x > 0.6; // Hand on the right 40% of the screen
 
       if (isLeft) {
         setSelection('left');
@@ -231,13 +254,6 @@ export default function HandChoiceController({
           <span style={styles.text}>{leftOption}</span>
         </div>
 
-        {/* Center guide: flashes when no hand detected */}
-        {!handDetected && (
-          <div style={styles.centerGuide}>
-            [ HAND SIGNAL LOST ] <br/> <small>Raising Hand to Connect...</small>
-          </div>
-        )}
-
         {/* Right option (red) */}
         <div style={{
           ...styles.optionZone,
@@ -248,7 +264,6 @@ export default function HandChoiceController({
            <div style={styles.fillLayer('rgba(255, 0, 0, 0.8)', selection === 'right' ? progress : 0)} />
            <span style={styles.text}>{rightOption}</span>
         </div>
-
       </div>
     </>
   );

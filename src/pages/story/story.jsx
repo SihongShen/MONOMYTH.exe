@@ -153,7 +153,7 @@ export default function TestStoryPage({ seed, name }) {
                     REQUIRED JSON STRUCTURE:
                     {
                       "narrative": "Final reflection wrapping up the journey...",
-                      "grandTitle": "THE NAME OF THE MYTH (Required)",
+                      "grandTitle": "AN EPIC TITLE FOR THIS LEGEND",
                       "choices": [],
                       "step": ${nextStep},
                       "stage": "THE END"
@@ -175,7 +175,17 @@ export default function TestStoryPage({ seed, name }) {
 
             nextNode.step = nextStep;
 
-            if (isEpilogue) nextNode.stage = "THE END";
+            // solving grandTitle missing problem
+            if (isEpilogue) {
+                nextNode.stage = "THE END";
+                if (!nextNode.grandTitle && nextNode.title) {
+                    nextNode.grandTitle = nextNode.title;
+                }
+                if (!nextNode.grandTitle) {
+                    nextNode.grandTitle = `THE LEGEND OF ${name ? name.toUpperCase() : 'THE HERO'}`;
+                }
+                setIsModalOpen(true);
+            }
 
             setHistory(prev => [...prev, nextNode]);
 
@@ -268,8 +278,9 @@ export default function TestStoryPage({ seed, name }) {
                                             <div 
                                                 className="click-to-open"
                                                 onClick={() => setIsModalOpen(true)}
+                                                style={{cursor: 'pointer', marginTop: '10px', textDecoration: 'underline'}}
                                             >
-                                                &gt; CLICK TO HAVE THE BOOK
+                                                &gt; ACCESS FINAL RECORD FILE
                                             </div>
                                         )}
                                     </div>
@@ -298,7 +309,7 @@ export default function TestStoryPage({ seed, name }) {
                 <div ref={bottomRef} />
             </div>
 
-            {history.length > 0 && history[history.length - 1]?.grandTitle && (
+            {isModalOpen && history.length > 0 && history[history.length - 1]?.grandTitle && (
                 <div className="modal-overlay">
                     <div className="modal-content">
                         <div style={{color: '#555', marginBottom: '1rem'}}>MYTHOS COMPLETE</div>
@@ -310,13 +321,23 @@ export default function TestStoryPage({ seed, name }) {
                         <p className="modal-text">
                             {history[history.length - 1].narrative}
                         </p>
-                        
-                        <button 
-                            onClick={() => window.location.reload()} 
-                            className="restart-btn"
-                        >
-                            INITIATE NEW CYCLE
-                        </button>
+
+                        <div style={{display: 'flex', gap: '20px', justifyContent: 'center', marginTop: '30px'}}>
+                            <button 
+                                onClick={() => setIsModalOpen(false)} 
+                                className="retro-choice-btn"
+                                style={{fontSize: '14px', padding: '10px 20px'}}
+                            >
+                                REVIEW LOGS
+                            </button>
+
+                            <button 
+                                onClick={() => window.location.reload()} 
+                                className="restart-btn"
+                            >
+                                INITIATE NEW CYCLE
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
