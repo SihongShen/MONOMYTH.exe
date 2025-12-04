@@ -6,8 +6,7 @@ import { GoogleGenAI } from "@google/genai";
 import './story.css';
 import Header from '../../components/header/header.jsx';
 
-export default function TestStoryPage() {
-    const [seed, setSeed] = useState('');
+export default function TestStoryPage({ seed, name }) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     // for storing story nodes and contents
@@ -20,8 +19,14 @@ export default function TestStoryPage() {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [history, loading]);
 
-    const handleStartGame = async () => {
-        if (!seed) return;
+    // Initialize game when seed and name are available
+    useEffect(() => {
+        if (seed && name) {
+            initiateGame();
+        }
+    }, [seed, name]);
+
+    const initiateGame = async () => {
         setLoading(true);
         setError(null);
         setHistory([]);
@@ -46,7 +51,7 @@ export default function TestStoryPage() {
             setChatSession(chat);
 
             const response = await chat.sendMessage({
-                message: `User Seed: "${seed}". Begin the story at Step 1. Output JSON.`
+                message: `User Seed: "${seed}". Hero Name: "${name}". Begin the story at Step 1. Output JSON.`
             })
 
             const node = parseAndValidate(response.text);
@@ -123,35 +128,12 @@ export default function TestStoryPage() {
         <div className="retro-container" >
             <Header />
 
-            {/* 输入区 - 模拟旧控制台 */}
-            <div className="retro-input-group max-w-3xl mx-auto">
-                <div className="flex gap-4">
-                    <span className="self-center font-bold text-xl">{'>'}</span>
-                    <input 
-                        type="text" 
-                        value={seed}
-                        onChange={(e) => setSeed(e.target.value)}
-                        placeholder="INITIATE_SEED_SEQUENCE..."
-                        className="retro-input flex-1"
-                        disabled={history.length > 0} 
-                        autoComplete="off"
-                    />
-                    <button 
-                        onClick={handleStartGame}
-                        disabled={loading || history.length > 0}
-                        className="retro-btn px-6 py-2"
-                    >
-                        {history.length > 0 ? 'EXECUTING...' : 'RUN'}
-                    </button>
-                </div>
-                {/* 重置按钮 */}
-                {history.length > 0 && (
-                    <div className="text-right mt-2">
-                         <button onClick={() => window.location.reload()} className="text-xs hover:text-red-500 underline decoration-dotted">
-                            [SYSTEM_RESET]
-                        </button>
-                    </div>
-                )}
+            {/* 顶部状态栏：替代了原来的输入框，仅作展示 */}
+            <div className="max-w-3xl mx-auto mt-6 mb-6 px-4 flex justify-between text-xs text-gray-500 font-mono border-b border-gray-800 pb-2">
+                {/* 这里的 Reload 其实就是重置 App 状态，简单起见可以直接刷新页面 */}
+                <button onClick={() => window.location.reload()} className="hover:text-red-500 underline decoration-dotted">
+                    [SYSTEM_RESET]
+                </button>
             </div>
 
             {error && <div className="border border-red-500 text-red-500 p-4 mb-6 max-w-3xl mx-auto bg-black bg-opacity-50">ERROR: {error}</div>}

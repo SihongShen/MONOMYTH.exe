@@ -1,28 +1,45 @@
-import React, { useState } from 'react'
-import './App.css'
+import React, { use, useState } from 'react'
 import OpeningPage from './pages/opening/opening.jsx';
+import InputPage from './pages/input/input.jsx';
 import TestStoryPage from './pages/story/story.jsx';
 
 function App() {
-    const [hasStarted, setHasStarted] = useState(false);
+    const [stage, setStage] = useState('opening');
+
+    const [gameData, setGameData] = useState({
+        seed: '',
+        name: '',
+    });
+
+    // opening - input
+    const handleStartInput = () => {
+      setStage('input');
+    };
+
+    // input - story
+    const handleInputComplete = (seed, name) => {
+      setGameData({ seed, name });
+      setStage('story');
+    }
+
+
 
     return (
-      <>{ !hasStarted ? (
-        <OpeningPage onStart={() => setHasStarted(true)} />
-      ) : (
-        <TestStoryPage />
-      )}
+      <>
+        {stage === 'opening' && (
+          <OpeningPage onStart={handleStartInput} />
+        
+        )}
+
+        {stage === 'input' && (
+          <InputPage onComplete={handleInputComplete} />
+        )}
+
+        {stage === 'story' && (
+          <TestStoryPage seed={gameData.seed} name={gameData.name} />
+        )}
       </>
     )
 }
 
 export default App
-
-// 前置输入阶段 name；gender；core word/question
-// 故事+选择阶段 
-//     llm api给文字和选项
-//     image（runway）给简单图片
-//     摄像头用来选择（hand/face model）
-// 结束阶段
-//     自动生成类似书cover/选择是否使用用户自己上传/拍摄的照片作为形象
-// 
