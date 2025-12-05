@@ -21,9 +21,9 @@ export default function IconGenerator({ keyword, onIconsGenerated }) {
 
                 // set prompt
                 const prompt = `A set of 6 distinct minimalist line art icons inspired by the conceptor keyword '${keyword}', 
-                                designed as cyberpunk UI elements. Black background, monochrome light grey lines (#CCCCCC). 
+                                designed as cyberpunk UI elements. Black background, monochrome light grey lines. 
                                 The icons should be simple, geometric, and look like digital blueprints or HUD elements. 
-                                Arranged in a grid. No text, no gradients.
+                                Arranged in a grid. **No text**, no gradients.
                                 Layout: 3 columns by 2 rows grid.`;
                 
                 // fetch api

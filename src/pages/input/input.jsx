@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef }from 'react';
 import Header from '../../components/header/header.jsx';
+import Footer from '../../components/footer/footer.jsx';
 import './input.css';
 
 export default function InputPage({ onComplete }) {
@@ -144,6 +145,7 @@ export default function InputPage({ onComplete }) {
                 )}
 
             </div>
+            <Footer />
         </div>
     );
 }

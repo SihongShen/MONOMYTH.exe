@@ -5,6 +5,7 @@ import { GoogleGenAI } from "@google/genai";
 // css file
 import './story.css';
 import Header from '../../components/header/header.jsx';
+import Footer from '../../components/footer/footer.jsx';
 import HandChoiceController from '../../models/handChoice.jsx';
 import GeminiCover from '../../models/coverGenerator.jsx';
 import IconGenerator from '../../models/iconGenerator.jsx';
@@ -362,6 +363,8 @@ export default function TestStoryPage({ seed, name }) {
                 
                 <div ref={bottomRef} />
             </div>
+
+            <Footer />
 
             {/* invisible part for saving PDF */}
             <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
