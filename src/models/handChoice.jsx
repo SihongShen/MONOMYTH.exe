@@ -68,157 +68,157 @@ const GHOST_HAND = [
 ];
 
 export default function HandChoiceController({ 
-  leftOption = "Option A", 
-  rightOption = "Option B", 
-  onSelect 
+    leftOption = "Option A", 
+    rightOption = "Option B", 
+    onSelect 
 }) {
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
-  const [handLandmarker, setHandLandmarker] = useState(null);
-  const [cameraActive, setCameraActive] = useState(false);
+    const videoRef = useRef(null);
+    const canvasRef = useRef(null);
+    const [handLandmarker, setHandLandmarker] = useState(null);
+    const [cameraActive, setCameraActive] = useState(false);
   
-  // state for hand detection and selection
-  const [handDetected, setHandDetected] = useState(false);
-  const [selection, setSelection] = useState(null); // 'left' or 'right'
-  const [progress, setProgress] = useState(0); // 0 - 100
+    // state for hand detection and selection
+    const [handDetected, setHandDetected] = useState(false);
+    const [selection, setSelection] = useState(null); // 'left' or 'right'
+    const [progress, setProgress] = useState(0); // 0 - 100
 
-  // 1. Initialize MediaPipe
-  useEffect(() => {
-    const initMediaPipe = async () => {
-      const vision = await FilesetResolver.forVisionTasks(
-        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
-      );
-      const landmarker = await HandLandmarker.createFromOptions(vision, {
-        baseOptions: {
-          modelAssetPath: `https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task`,
-          delegate: "GPU"
-        },
-        runningMode: "VIDEO",
-        numHands: 1
-      });
-      setHandLandmarker(landmarker);
-    };
-    initMediaPipe();
-  }, []);
+    // 1. Initialize MediaPipe
+    useEffect(() => {
+        const initMediaPipe = async () => {
+        const vision = await FilesetResolver.forVisionTasks(
+            "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
+        );
+        const landmarker = await HandLandmarker.createFromOptions(vision, {
+            baseOptions: {
+            modelAssetPath: `https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task`,
+            delegate: "GPU"
+            },
+            runningMode: "VIDEO",
+            numHands: 1
+        });
+        setHandLandmarker(landmarker);
+        };
+        initMediaPipe();
+    }, []);
 
-  // 2. Open camera and start detection loop
-  useEffect(() => {
-    if (!handLandmarker || !videoRef.current) return;
+    // 2. Open camera and start detection loop
+    useEffect(() => {
+        if (!handLandmarker || !videoRef.current) return;
 
-    const enableCam = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        videoRef.current.srcObject = stream;
-        videoRef.current.addEventListener("loadeddata", predictWebcam);
-        setCameraActive(true);
-      } catch (err) {
-        console.error("Camera Error:", err);
-      }
-    };
+        const enableCam = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            videoRef.current.srcObject = stream;
+            videoRef.current.addEventListener("loadeddata", predictWebcam);
+            setCameraActive(true);
+        } catch (err) {
+            console.error("Camera Error:", err);
+        }
+        };
 
-    enableCam();
+        enableCam();
 
-    let lastVideoTime = -1;
-    let animationFrameId;
+        let lastVideoTime = -1;
+        let animationFrameId;
 
-    const predictWebcam = () => {
-      // The logic here mainly loops to call detection
-      if (videoRef.current && videoRef.current.currentTime !== lastVideoTime) {
-        lastVideoTime = videoRef.current.currentTime;
-        const results = handLandmarker.detectForVideo(videoRef.current, performance.now());
-        
-        handleGameLogic(results);
-        drawHand(results);
-      }
-      animationFrameId = requestAnimationFrame(predictWebcam);
-    };
-
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-      if(videoRef.current && videoRef.current.srcObject) {
-        videoRef.current.srcObject.getTracks().forEach(track => track.stop());
-      }
-    };
-  }, [handLandmarker]);
-
-  const drawHand = useCallback((results) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    
-    // clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // real hand detected
-    if (results && results.landmarks && results.landmarks.length > 0) {
-        const landmarks = results.landmarks[0];
-
-        ctx.fillStyle = '#00FFCC';
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = '#00FFCC';
-
-        for (let i = 0; i < landmarks.length; i++) {
-            const x = (1 - landmarks[i].x) * canvas.width;
-            const y = landmarks[i].y * canvas.height;
+        const predictWebcam = () => {
+        // The logic here mainly loops to call detection
+        if (videoRef.current && videoRef.current.currentTime !== lastVideoTime) {
+            lastVideoTime = videoRef.current.currentTime;
+            const results = handLandmarker.detectForVideo(videoRef.current, performance.now());
             
-            ctx.beginPath();
-            ctx.arc(x, y, 3, 0, 2 * Math.PI);
-            ctx.fill();
+            handleGameLogic(results);
+            drawHand(results);
         }
-    } 
-    // no hand detected
-    else {
-        const time = performance.now() / 400; 
-        const alpha = (Math.sin(time) + 1) / 2 * 0.4 + 0.1;
-        
-        ctx.fillStyle = `rgba(50, 50, 50, ${alpha})`;
-        ctx.shadowBlur = 0;
+        animationFrameId = requestAnimationFrame(predictWebcam);
+        };
 
-        for (let i = 0; i < GHOST_HAND.length; i++) {
-            const pt = GHOST_HAND[i];
-            const x = pt.x * canvas.width;
-            const y = pt.y * canvas.height;
+        return () => {
+            cancelAnimationFrame(animationFrameId);
+            if(videoRef.current && videoRef.current.srcObject) {
+                videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+            }
+        };
+    }, [handLandmarker]);
 
-            ctx.beginPath();
-            ctx.arc(x, y, 3, 0, 2 * Math.PI);
-            ctx.fill();
+    const drawHand = useCallback((results) => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+    
+        // clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // real hand detected
+        if (results && results.landmarks && results.landmarks.length > 0) {
+            const landmarks = results.landmarks[0];
+
+            ctx.fillStyle = '#00FFCC';
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = '#00FFCC';
+
+            for (let i = 0; i < landmarks.length; i++) {
+                const x = (1 - landmarks[i].x) * canvas.width;
+                const y = landmarks[i].y * canvas.height;
+                
+                ctx.beginPath();
+                ctx.arc(x, y, 3, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+        } 
+        // no hand detected
+        else {
+            const time = performance.now() / 400; 
+            const alpha = (Math.sin(time) + 1) / 2 * 0.4 + 0.1;
+            
+            ctx.fillStyle = `rgba(50, 50, 50, ${alpha})`;
+            ctx.shadowBlur = 0;
+
+            for (let i = 0; i < GHOST_HAND.length; i++) {
+                const pt = GHOST_HAND[i];
+                const x = pt.x * canvas.width;
+                const y = pt.y * canvas.height;
+
+                ctx.beginPath();
+                ctx.arc(x, y, 3, 0, 2 * Math.PI);
+                ctx.fill();
+            }
         }
-    }
-  }, []);
+    }, []);
 
-  // 3. Determine selection based on hand position
-  const handleGameLogic = (results) => {
-    if (results.landmarks && results.landmarks.length > 0) {
-      setHandDetected(true);
-      
-      // Get the coordinates of the index fingertip (index 8) or palm center (index 0 or 9)
-      // x coordinate ranges from 0 (left) to 1 (right)
-      // Note: The camera may be mirrored by default depending on your CSS flip. Here we assume 0 is left.
-      const rawX = results.landmarks[0][8].x; // Index fingertip
-      const x = 1 - rawX;
-      
-      // Logic decision area
-      const isLeft = x < 0.4; // Hand on the left 40% of the screen
-      const isRight = x > 0.6; // Hand on the right 40% of the screen
+    // 3. Determine selection based on hand position
+    const handleGameLogic = (results) => {
+        if (results.landmarks && results.landmarks.length > 0) {
+            setHandDetected(true);
+            
+            // Get the coordinates of the index fingertip (index 8) or palm center (index 0 or 9)
+            // x coordinate ranges from 0 (left) to 1 (right)
+            // Note: The camera may be mirrored by default depending on your CSS flip. Here we assume 0 is left.
+            const rawX = results.landmarks[0][8].x; // Index fingertip
+            const x = 1 - rawX;
+            
+            // Logic decision area
+            const isLeft = x < 0.4; // Hand on the left 40% of the screen
+            const isRight = x > 0.6; // Hand on the right 40% of the screen
 
-      if (isLeft) {
-        setSelection('left');
-        setProgress(prev => Math.min(prev + 2, 100)); // Increase progress, speed adjustable
-      } else if (isRight) {
-        setSelection('right');
-        setProgress(prev => Math.min(prev + 2, 100));
-      } else {
-        // Hand in the middle, reset
-        setSelection(null);
-        setProgress(prev => Math.max(prev - 5, 0)); // Fast rollback
-      }
+            if (isLeft) {
+                setSelection('left');
+                setProgress(prev => Math.min(prev + 2, 100)); // Increase progress, speed adjustable
+            } else if (isRight) {
+                setSelection('right');
+                setProgress(prev => Math.min(prev + 2, 100));
+            } else {
+                // Hand in the middle, reset
+                setSelection(null);
+                setProgress(prev => Math.max(prev - 5, 0)); // Fast rollback
+            }
 
-    } else {
-      setHandDetected(false);
-      setSelection(null);
-      setProgress(0);
-    }
-  };
+        } else {
+            setHandDetected(false);
+            setSelection(null);
+            setProgress(0);
+        }
+    };
 
 //  Handle canvas resizing
   useEffect(() => {

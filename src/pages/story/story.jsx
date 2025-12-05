@@ -6,6 +6,8 @@ import { GoogleGenAI } from "@google/genai";
 import './story.css';
 import Header from '../../components/header/header.jsx';
 import HandChoiceController from '../../models/handChoice.jsx';
+import GeminiCover from '../../models/coverGenerator.jsx';  
+import SystemCheck from '../../components/test.jsx';
 
 // typewriter effect for story text
 const Typewriter = ({ text, speed = 20, isLatest, onComplete }) => {
@@ -226,10 +228,9 @@ export default function TestStoryPage({ seed, name }) {
 
             {showHandControl && (
                 <HandChoiceController 
-                    leftOption={choices[0].shortDesc}  // 左边对应数组第一个
-                    rightOption={choices[1].shortDesc} // 右边对应数组第二个
+                    leftOption={choices[0].shortDesc}
+                    rightOption={choices[1].shortDesc}
                     onSelect={(textLabel) => {
-                        // 回调返回的是文字，我们需要找回对应的 ID
                         const choice = choices.find(c => c.shortDesc === textLabel);
                         if (choice) {
                             handleChoice(choice.id, choice.shortDesc);
@@ -318,6 +319,11 @@ export default function TestStoryPage({ seed, name }) {
                         <h1 className="grand-title">
                             {history[history.length - 1].grandTitle}
                         </h1>
+
+                        {/* cover */}
+                        {history[history.length - 1].coverArtPrompt && (
+                            <GeminiCover prompt={history[history.length - 1].coverArtPrompt} />
+                        )}
                         
                         <p className="modal-text">
                             {history[history.length - 1].narrative}
