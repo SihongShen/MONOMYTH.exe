@@ -13,7 +13,14 @@ const styles = {
 
     canvas: {
         position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-        zIndex: 1
+        zIndex: 20
+    },
+
+    backdrop: {
+        position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+        backgroundColor: 'rgba(255, 255, 255, 0.5)',
+        backdropFilter: 'blur(3px)',
+        zIndex: 10 //
     },
   
     optionZone: {
@@ -44,7 +51,9 @@ const styles = {
     centerGuide: {
         position: 'absolute', left: '50%', top: '50%',
         transform: 'translate(-50%, -50%)',
-        color: 'white', fontSize: '14px',
+        textAlign: 'center',
+        color: '#D32F2F', fontSize: '48px', fontWeight: 'bold',
+        textShadow: '0 0 15px rgba(211, 47, 47, 0.6), 0 0 5px rgba(211, 47, 47, 0.8)',
         animation: 'pulse 1.5s infinite'
     }
 };
@@ -153,7 +162,7 @@ export default function HandChoiceController({
             const y = landmarks[i].y * canvas.height;
             
             ctx.beginPath();
-            ctx.arc(x, y, 6, 0, 2 * Math.PI);
+            ctx.arc(x, y, 3, 0, 2 * Math.PI);
             ctx.fill();
         }
     } 
@@ -162,7 +171,7 @@ export default function HandChoiceController({
         const time = performance.now() / 400; 
         const alpha = (Math.sin(time) + 1) / 2 * 0.4 + 0.1;
         
-        ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+        ctx.fillStyle = `rgba(50, 50, 50, ${alpha})`;
         ctx.shadowBlur = 0;
 
         for (let i = 0; i < GHOST_HAND.length; i++) {
@@ -171,7 +180,7 @@ export default function HandChoiceController({
             const y = pt.y * canvas.height;
 
             ctx.beginPath();
-            ctx.arc(x, y, 6, 0, 2 * Math.PI);
+            ctx.arc(x, y, 3, 0, 2 * Math.PI);
             ctx.fill();
         }
     }
@@ -235,30 +244,42 @@ export default function HandChoiceController({
 
   return (
     <>
-      {/* Hidden Video element for MediaPipe to read */}
-      <video ref={videoRef} autoPlay playsInline style={styles.videoHidden} />
+        {/* Hidden Video element for MediaPipe to read */}
+        <video ref={videoRef} autoPlay playsInline style={styles.videoHidden} />
 
-      <canvas ref={canvasRef} style={styles.canvas} />
+        {/* transparent layout */}
+        <div style={styles.backdrop}></div>
 
-      {/* UI Layer */}
-      <div style={styles.container}>
+        <canvas ref={canvasRef} style={styles.canvas} />
+
+        {/* UI Layer */}
+        <div style={styles.container}>
         
         {/* Left option (blue) */}
         <div style={{
-          ...styles.optionZone,
-          borderColor: 'rgba(0, 255, 255, 0.5)',
-          boxShadow: selection === 'left' ? `0 0 ${progress/2}px rgba(0,255,255,0.8)` : 'none'
+            ...styles.optionZone,
+            borderColor: 'rgba(0, 255, 255, 0.5)',
+            boxShadow: selection === 'left' ? `0 0 ${progress/2}px rgba(0,255,255,0.8)` : 'none'
         }}>
-          {/* Fill layer */}
-          <div style={styles.fillLayer('rgba(0, 255, 255, 0.8)', selection === 'left' ? progress : 0)} />
-          <span style={styles.text}>{leftOption}</span>
+
+        {/* Fill layer */}
+        <div style={styles.fillLayer('rgba(0, 255, 255, 0.8)', selection === 'left' ? progress : 0)} />
+            <span style={styles.text}>{leftOption}</span>
         </div>
+
+        {/* guide text */}
+        {!handDetected && (
+            <div style={styles.centerGuide}>
+                SIGNAL LOST<br/> 
+                <small style={{fontSize: '0.8em', fontWeight: 'normal'}}>Please Raise Hand</small>
+            </div>
+        )}
 
         {/* Right option (red) */}
         <div style={{
-          ...styles.optionZone,
-          borderColor: 'rgba(255, 0, 0, 0.5)',
-          boxShadow: selection === 'right' ? `0 0 ${progress/2}px rgba(255,0,0,0.8)` : 'none'
+            ...styles.optionZone,
+            borderColor: 'rgba(255, 0, 0, 0.5)',
+            boxShadow: selection === 'right' ? `0 0 ${progress/2}px rgba(255,0,0,0.8)` : 'none'
         }}>
            {/* Fill layer */}
            <div style={styles.fillLayer('rgba(255, 0, 0, 0.8)', selection === 'right' ? progress : 0)} />

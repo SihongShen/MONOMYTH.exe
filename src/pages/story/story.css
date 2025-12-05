@@ -26,7 +26,7 @@
     margin: 0 auto 2rem auto;
     padding: 1rem 2rem;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     font-size: 0.8rem;
     color: #555;
     border-bottom: 1px dashed #333;
@@ -35,7 +35,7 @@
 .reset-btn {
     background: none;
     border: none;
-    color: #555;
+    color: #33ff33;
     text-decoration: underline;
     cursor: pointer;
     font-family: inherit;
@@ -64,7 +64,6 @@
 .story-node {
     margin-bottom: 3rem;
     position: relative;
-    /* border-left: 2px solid #1a1a1a; */
     padding-left: 2rem;
 }
 

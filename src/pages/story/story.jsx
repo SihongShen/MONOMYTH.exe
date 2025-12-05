@@ -184,7 +184,6 @@ export default function TestStoryPage({ seed, name }) {
                 if (!nextNode.grandTitle) {
                     nextNode.grandTitle = `THE LEGEND OF ${name ? name.toUpperCase() : 'THE HERO'}`;
                 }
-                setIsModalOpen(true);
             }
 
             setHistory(prev => [...prev, nextNode]);
@@ -204,7 +203,9 @@ export default function TestStoryPage({ seed, name }) {
 
     const handleTypewriterComplete = () => {
         if (!loading) {
-            setStoryState('CHOOSING');
+            setTimeout(() => {
+                setStoryState('CHOOSING');
+            }, 5000);
         }
     };
 
