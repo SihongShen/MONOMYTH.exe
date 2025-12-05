@@ -22,8 +22,6 @@ function App() {
       setStage('story');
     }
 
-
-
     return (
       <>
         {stage === 'opening' && (

@@ -6,7 +6,9 @@ import { GoogleGenAI } from "@google/genai";
 import './story.css';
 import Header from '../../components/header/header.jsx';
 import HandChoiceController from '../../models/handChoice.jsx';
-import GeminiCover from '../../models/coverGenerator.jsx';  
+import GeminiCover from '../../models/coverGenerator.jsx';
+import IconGenerator from '../../models/iconGenerator.jsx';
+import ProgressiveBackground from '../../components/background.jsx';
 // pdf output library
 import html2pdf from 'html2pdf.js';
 // import SystemCheck from '../../components/test.jsx';
@@ -77,6 +79,8 @@ export default function TestStoryPage({ seed, name }) {
     const bottomRef = useRef(null);
     // save cover img data
     const [finalCoverBase64, setFinalCoverBase64] = useState(null);
+    // icon
+    const [bgIconsUrl, setBgIconsUrl] = useState(null);
     // save pdf template
     const printRef = useRef(null);
 
@@ -248,17 +252,29 @@ export default function TestStoryPage({ seed, name }) {
     };
 
     const currentNode = history.length > 0 ? history[history.length - 1] : null;
+    const currentStepCount = history.length;
     const choices = currentNode?.choices || [];
     const showHandControl = storyState === 'CHOOSING' && choices.length >=2 && !currentNode?.selectedId && !loading;
 
     return (
         <div className="retro-container">
+
+            <IconGenerator 
+                keyword={seed} 
+                onIconsGenerated={setBgIconsUrl} 
+            />
+
             <Header />
             <div className="status-bar">
                 <button onClick={() => window.location.reload()} className="reset-btn">
                     [SYSTEM_RESET]
                 </button>
             </div>
+
+            <ProgressiveBackground 
+                iconsUrl={bgIconsUrl} 
+                currentStep={currentStepCount} 
+            />
 
             {error && <div className="error-msg">ERROR: {error}</div>}
 

@@ -3,8 +3,14 @@
 }
 
 .retro-container {
-    background-color: #000;
-    background: linear-gradient(to top, #000000, #000000 40%, #111 60%, #111);
+    background-color: transparent;
+    background: linear-gradient(
+        to top, 
+        rgba(0, 0, 0, 0.85), 
+        rgba(0, 0, 0, 0.85) 40%, 
+        rgba(17, 17, 17, 0.85) 60%, 
+        rgba(17, 17, 17, 0.85)
+    );
     background-size: 100% 4px;
     min-height: 100vh;
     width: 100vw;

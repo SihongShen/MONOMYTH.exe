@@ -6,7 +6,7 @@ const Header = () => {
     <header className="monomyth-header">
       <div className="header-left">
         <div className="sub-info">
-          VER 1.0.0
+          VER 1.2.0
         </div>
         <div className="title-row">
           <h1 className="main-title">MONOMYTH</h1>

@@ -1,3 +1,4 @@
+// test file for image generator
 import React, { useState } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import GeminiCover from '../models/coverGenerator'; 
