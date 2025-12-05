@@ -9,9 +9,16 @@ export default function GeminiCover({ prompt, onImageGenerated }) {
     const requestingPromptRef = useRef(null);
 
     useEffect(() => {
-        if (!prompt) return;
+        console.log("🎨 GeminiCover: Component Mounted/Updated");
+        console.log("📩 Received Prompt:", prompt);
+
+        if (!prompt) {
+            console.warn("⚠️ GeminiCover: Prompt is empty or undefined. Aborting.");
+            return;
+        }
 
         if (requestingPromptRef.current === prompt) {
+            console.log("🔄 GeminiCover: Prompt matches previous request. Skipping duplicate generation.");
             return;
         }
 

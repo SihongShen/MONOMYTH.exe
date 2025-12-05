@@ -172,6 +172,7 @@ export default function TestStoryPage({ seed, name }) {
                       "narrative": "Final reflection wrapping up the journey...",
                       "grandTitle": "AN EPIC TITLE FOR THIS LEGEND",
                       "choices": [],
+                      "coverArtPrompt": "A highly detailed description of the final scene for an oil painting generator...",
                       "step": ${nextStep},
                       "stage": "THE END"
                     }
@@ -193,13 +194,19 @@ export default function TestStoryPage({ seed, name }) {
             nextNode.step = nextStep;
 
             // solving grandTitle missing problem
-            if (isEpilogue) {
+            const isStoryEnded = isEpilogue || (!nextNode.choices || nextNode.choices.length === 0);
+
+            if (isStoryEnded) {
                 nextNode.stage = "THE END";
                 if (!nextNode.grandTitle && nextNode.title) {
                     nextNode.grandTitle = nextNode.title;
                 }
                 if (!nextNode.grandTitle) {
                     nextNode.grandTitle = `THE LEGEND OF ${name ? name.toUpperCase() : 'THE HERO'}`;
+                }
+                
+                if (!nextNode.choices) {
+                    nextNode.choices = [];
                 }
             }
 
@@ -431,7 +438,10 @@ export default function TestStoryPage({ seed, name }) {
 
                         {history[history.length - 1].coverArtPrompt && (
                             <GeminiCover 
-                                prompt={history[history.length - 1].coverArtPrompt} 
+                                prompt={
+                                        history[history.length - 1].coverArtPrompt || 
+                                        `Epic fantasy oil painting of ${history[history.length - 1].grandTitle}, mysterious, divine light`
+                                    } 
                                 onImageGenerated={(b64) => setFinalCoverBase64(b64)}
                             />
                         )}

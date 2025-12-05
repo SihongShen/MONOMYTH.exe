@@ -54,7 +54,6 @@ export default function IconGenerator({ keyword, onIconsGenerated }) {
             }
         };
 
-        // 执行生成函数
         generate();
 
     }, [keyword, onIconsGenerated]);
