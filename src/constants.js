@@ -89,6 +89,3 @@ Instead, offer two different **Methods of Engagement**:
 **Adaptation:**
 The journey adapts to the user's "Seed" word, interpreting it as the catalyst for the Call to Adventure.
 `;
-
-// Fallback image if generation fails
-export const PLACEHOLDER_IMAGE = "https://picsum.photos/seed/mono/800/600";

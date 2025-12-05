@@ -7,7 +7,9 @@ import './story.css';
 import Header from '../../components/header/header.jsx';
 import HandChoiceController from '../../models/handChoice.jsx';
 import GeminiCover from '../../models/coverGenerator.jsx';  
-import SystemCheck from '../../components/test.jsx';
+// pdf output library
+import html2pdf from 'html2pdf.js';
+// import SystemCheck from '../../components/test.jsx';
 
 // typewriter effect for story text
 const Typewriter = ({ text, speed = 20, isLatest, onComplete }) => {
@@ -60,19 +62,24 @@ const Typewriter = ({ text, speed = 20, isLatest, onComplete }) => {
     );
 };
 
+// main story display
 export default function TestStoryPage({ seed, name }) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     // for storing story nodes and contents
     const [chatSession, setChatSession] = useState(null);
     const [history, setHistory] = useState([]);
-    const [storyState, setStoryState] = useState('READING'); // reading choosing
+    // reading choosing
+    const [storyState, setStoryState] = useState('READING');
     const [isModalOpen, setIsModalOpen] = useState(false);
-
     const hasInitialized = useRef(false);
-
     // auto-scroll to bottom when new content is added
     const bottomRef = useRef(null);
+    // save cover img data
+    const [finalCoverBase64, setFinalCoverBase64] = useState(null);
+    // save pdf template
+    const printRef = useRef(null);
+
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [history, loading, history.length]);
@@ -91,8 +98,10 @@ export default function TestStoryPage({ seed, name }) {
         setHistory([]);
         setIsModalOpen(false);
         setStoryState('READING');
+        setFinalCoverBase64(null);
 
         try {
+            // initiate LLM
             const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
             if (!apiKey) {
@@ -126,6 +135,7 @@ export default function TestStoryPage({ seed, name }) {
         }
     };
 
+    // choosing part logic
     const handleChoice =  async (choiceId, shortDesc) => {
         if(!chatSession) return;
         
@@ -209,6 +219,32 @@ export default function TestStoryPage({ seed, name }) {
                 setStoryState('CHOOSING');
             }, 5000);
         }
+    };
+
+    const generatePDF = async () => {
+        const element = printRef.current;
+
+        const coverImg = element.querySelector('img');
+
+        if (coverImg && !coverImg.complete) {
+            // waiting for the img to load
+            await new Promise((resolve) => {
+                coverImg.onload = resolve;
+                // if failed, continue
+                coverImg.onerror = resolve;
+            });
+        }
+        const opt = {
+            margin:       0.5,
+            filename:     `${name}_Mythos_Log.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+
+        setTimeout(() => {
+            html2pdf().set(opt).from(element).save();
+        }, 500);
     };
 
     const currentNode = history.length > 0 ? history[history.length - 1] : null;
@@ -311,6 +347,60 @@ export default function TestStoryPage({ seed, name }) {
                 <div ref={bottomRef} />
             </div>
 
+            {/* invisible part for saving PDF */}
+            <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+                <div ref={printRef} style={{ 
+                                            padding: '40px',
+                                            fontFamily: 'Georgia, serif',
+                                            color: '#000',
+                                            background: '#fff',
+                                            width: '650px',
+                                            wordWrap: 'break-word',
+                                            overflowWrap: 'break-word'
+                                        }}>
+                    
+                    <div style={{ textAlign: 'center', borderBottom: '2px solid #000', paddingBottom: '20px', marginBottom: '30px' }}>
+                        <h1 style={{ fontSize: '36px', margin: '0 0 10px 0' }}>
+                            {history.length > 0 && history[history.length - 1].grandTitle}
+                        </h1>
+                        <p style={{ fontSize: '18px', fontStyle: 'italic' }}>The Chronicle of {name}</p>
+                        <p style={{ fontSize: '12px', color: '#666' }}>Seed: {seed}</p>
+                    </div>
+
+                    {finalCoverBase64 && (
+                        <div style={{ marginBottom: '40px', textAlign: 'center' }}>
+                            <img src={finalCoverBase64.startsWith('data:') 
+                                    ? finalCoverBase64 
+                                    : `data:image/png;base64,${finalCoverBase64}`}
+                                    alt="Cover" style={{ maxWidth: '100%', border: '1px solid #333' }} />
+                        </div>
+                    )}
+
+                    {history.map((node, index) => {
+                        const selectedChoice = node.choices?.find(c => c.id === node.selectedId);
+                        return (
+                            <div key={index} style={{ marginBottom: '25px' }}>
+                                <h3 style={{ fontSize: '18px', borderBottom: '1px solid #ccc', paddingBottom: '5px' }}>
+                                    Chapter {node.step}: {node.title || 'Untitled'}
+                                </h3>
+                                <p style={{ lineHeight: '1.6', fontSize: '14px', textAlign: 'italic' }}>
+                                    {node.narrative}
+                                </p>
+                                {selectedChoice && (
+                                    <div style={{ borderRadius: '4px', fontSize: '14px', fontStyle: 'italic' }}>
+                                        {selectedChoice.text}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
+                    
+                    <div style={{ textAlign: 'center', marginTop: '50px', fontSize: '12px', color: '#999' }}>
+                        Generated by MONOMYTH System
+                    </div>
+                </div>
+            </div>
+
             {isModalOpen && history.length > 0 && history[history.length - 1]?.grandTitle && (
                 <div className="modal-overlay">
                     <div className="modal-content">
@@ -320,11 +410,13 @@ export default function TestStoryPage({ seed, name }) {
                             {history[history.length - 1].grandTitle}
                         </h1>
 
-                        {/* cover */}
                         {history[history.length - 1].coverArtPrompt && (
-                            <GeminiCover prompt={history[history.length - 1].coverArtPrompt} />
+                            <GeminiCover 
+                                prompt={history[history.length - 1].coverArtPrompt} 
+                                onImageGenerated={(b64) => setFinalCoverBase64(b64)}
+                            />
                         )}
-                        
+
                         <p className="modal-text">
                             {history[history.length - 1].narrative}
                         </p>
@@ -343,6 +435,13 @@ export default function TestStoryPage({ seed, name }) {
                                 className="restart-btn"
                             >
                                 INITIATE NEW CYCLE
+                            </button>
+
+                            <button 
+                                onClick={generatePDF} 
+                                className="retro-choice-btn"
+                            >
+                                SAVE AS PDF
                             </button>
                         </div>
                     </div>

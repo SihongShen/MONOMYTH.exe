@@ -58,6 +58,7 @@ const styles = {
     }
 };
 
+// draw hand
 const GHOST_HAND = [
     {x: 0.5, y: 0.8}, 
     {x: 0.4, y: 0.75}, {x: 0.35, y: 0.7}, {x: 0.3, y: 0.65}, {x: 0.25, y: 0.6},

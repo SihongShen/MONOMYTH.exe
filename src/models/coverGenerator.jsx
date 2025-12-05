@@ -1,7 +1,7 @@
-import React, { useState, useEffec, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { GoogleGenAI } from "@google/genai";
 
-export default function GeminiCover({ prompt }) {
+export default function GeminiCover({ prompt, onImageGenerated }) {
     const [imgBase64, setImgBase64] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -35,7 +35,6 @@ export default function GeminiCover({ prompt }) {
                     config: {
                         numberOfImages: 1,
                         aspectRatio: "16:9",
-                        // responseMimeType: "image/jpeg" 
                     },
                 });
 
@@ -43,8 +42,13 @@ export default function GeminiCover({ prompt }) {
                 
                 // parse Base64
                 if (generatedImage?.image?.imageBytes) {
-                    const b64 = generatedImage.image.imageBytes;
-                    setImgBase64(`data:image/png;base64,${b64}`);
+                    const fullBase64 = `data:image/png;base64,${generatedImage.image.imageBytes}`;
+                    setImgBase64(fullBase64);
+
+                    // send to parent component
+                    if (onImageGenerated) {
+                        onImageGenerated(fullBase64);
+                    }
                 } else {
                     throw new Error("No image data received. Safety filter might be triggered.");
                 }
@@ -57,7 +61,7 @@ export default function GeminiCover({ prompt }) {
         };
 
         generate();
-    }, [prompt]);
+    }, [prompt, onImageGenerated]);
 
     return (
         <div style={{
