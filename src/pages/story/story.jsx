@@ -436,15 +436,17 @@ export default function TestStoryPage({ seed, name }) {
                             {history[history.length - 1].grandTitle}
                         </h1>
 
-                        {history[history.length - 1].coverArtPrompt && (
-                            <GeminiCover 
-                                prompt={
-                                        history[history.length - 1].coverArtPrompt || 
-                                        `Epic fantasy oil painting of ${history[history.length - 1].grandTitle}, mysterious, divine light`
-                                    } 
-                                onImageGenerated={(b64) => setFinalCoverBase64(b64)}
-                            />
-                        )}
+                        {/* Always render Cover, even if prompt is missing */}
+                        <GeminiCover 
+                            prompt={
+                                history[history.length - 1].coverArtPrompt || 
+                                `Epic greek fantasy oil painting of ${history[history.length - 1].grandTitle}, mysterious, divine light`
+                            } 
+                            onImageGenerated={(b64) => {
+                                console.log("📸 Cover Image Generated:", b64 ? 'SUCCESS' : 'FAILED');
+                                setFinalCoverBase64(b64);
+                            }}
+                        />
 
                         <p className="modal-text">
                             {history[history.length - 1].narrative}
