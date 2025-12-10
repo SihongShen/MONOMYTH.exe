@@ -17,9 +17,9 @@ const Footer = () => {
         <span className="separator">//</span>
 
         <a 
-        //   href="https://your-documentation-url.com" 
-        //   target="_blank" 
-        //   rel="noopener noreferrer"
+          href="https://www.notion.so/Final-Project-Documentation-2c37c8dca34580c48ec7cbef7160073a?source=copy_link" 
+          target="_blank" 
+          rel="noopener noreferrer"
           className="footer-link"
         >
           DOCUMENTATION
