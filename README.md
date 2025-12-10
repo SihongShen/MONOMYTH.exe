@@ -21,6 +21,25 @@ An interactive narrative game engine based on **Joseph Campbell's Hero's Journey
 - **Story Export**: Automatically generate PDF books with complete story and AI-generated illustrations
 - **Retro-Futuristic Aesthetic**: CRT scanlines, green terminal fonts, neon glow effects
 
+## 🛠️ Tech Stack
+
+### Frontend
+- **Framework**: React 19.2.0 with Vite 7.2.2
+- **Styling**: Tailwind CSS + Custom CSS (retro terminal style)
+- **Animations**: Pure CSS keyframe animations
+
+### AI & Machine Learning
+- **LLM**: Google Gemini 2.5 Flash (story generation)
+- **Gesture Recognition**: MediaPipe Tasks Vision (real-time hand detection)
+- **Image Generation**: Gemini Vision API (illustration generation)
+
+### Export
+- **PDF Generation**: html2pdf.js
+
+### Development Tools
+- **Build**: Vite
+- **Linting**: ESLint
+- **Deployment**: GitHub Pages
 
 ## 🎮 Game Flow
 
@@ -63,28 +82,6 @@ Progress bar fills to 100%    →  Auto-selects choice
 - Displays Grand Title: The mythical name given to the story
 - Provides PDF export button
 - Restart button (resets the entire narration)
-
-
-## 🛠️ Tech Stack
-
-### Frontend
-- **Framework**: React 19.2.0 with Vite 7.2.2
-- **Styling**: Tailwind CSS + Custom CSS (retro terminal style)
-- **Animations**: Pure CSS keyframe animations
-
-### AI & Machine Learning
-- **LLM**: Google Gemini 2.5 Flash (story generation)
-- **Gesture Recognition**: MediaPipe Tasks Vision (real-time hand detection)
-- **Image Generation**: Gemini Vision API (illustration generation)
-
-### Export
-- **PDF Generation**: html2pdf.js
-
-### Development Tools
-- **Build**: Vite
-- **Linting**: ESLint
-- **Deployment**: GitHub Pages
-
 
 ## 📦 Project Structure
 
