@@ -2,7 +2,9 @@
 
 An interactive narrative game engine based on **Joseph Campbell's Hero's Journey theory**. Players input a keyword and character name, and the AI generates a complete 6-step hero's journey story, blending **Ancient Greek mythology** settings, **hand gesture recognition** interaction, and **PDF export** functionality.
 
-[Experience Live](https://sihongshen.github.io/MONOMYTH.exe/)
+[Experience Live](https://sihongshen.github.io/MONOMYTH.exe/)  
+[Demo Video](https://drive.google.com/file/d/10gmjDOMBvwuyDPOTBPQgXZKpNOFP_T5l/view?usp=drive_link)  
+**Live demo currently down because of security issues. Please watch the video or pull to local and use your own API.**
 
 
 ## 📖 Project Overview
