@@ -1,0 +1,130 @@
+/* Global responsive helpers for mobile and tablet (iPad)
+   Breakpoints:
+     - Mobile: up to 480px
+     - Tablet (iPad): up to 900px
+   These rules are intentionally conservative and aim to scale typography, spacing,
+   modal sizes, images and buttons for touch devices.
+*/
+
+:root {
+  --base-font: 16px;
+  --mobile-font: 15px;
+  --tablet-font: 16px;
+  --desktop-font: 17px;
+
+  --container-padding-desktop: 4rem;
+  --container-padding-tablet: 2rem;
+  --container-padding-mobile: 1rem;
+}
+
+/* Make images and canvases fluid */
+img, canvas, video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Utility container class to center content with responsive padding */
+.responsive-container {
+  width: 100%;
+  box-sizing: border-box;
+  padding-left: var(--container-padding-desktop);
+  padding-right: var(--container-padding-desktop);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Make modals fit smaller screens comfortably */
+.modal-content {
+  box-sizing: border-box;
+  width: min(900px, 96%);
+  padding: 3rem;
+  margin: 1rem;
+}
+
+/* Buttons and touch targets */
+button, .retro-choice-btn, .restart-btn {
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+  touch-action: manipulation;
+}
+
+/* Tablet (iPad) rules: up to 900px */
+@media (max-width: 900px) {
+  :root { font-size: var(--tablet-font); }
+
+  .responsive-container {
+    padding-left: var(--container-padding-tablet);
+    padding-right: var(--container-padding-tablet);
+  }
+
+  .story-log {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  .modal-content {
+    padding: 2rem;
+    width: min(760px, 96%);
+    max-height: 86vh;
+  }
+
+  .grand-title {
+    font-size: 2.2rem;
+    padding-bottom: 0.6rem;
+  }
+
+  .retro-choices { max-width: 95%; }
+
+  .retro-choice-btn {
+    font-size: 1.05rem;
+    padding: 0.9rem 1rem;
+  }
+
+  .restart-btn { padding: 0.9rem 2rem; font-size: 1.05rem; }
+}
+
+/* Mobile rules: up to 480px */
+@media (max-width: 480px) {
+  :root { font-size: var(--mobile-font); }
+
+  .responsive-container {
+    padding-left: var(--container-padding-mobile);
+    padding-right: var(--container-padding-mobile);
+  }
+
+  body { min-width: 320px; }
+
+  .story-log {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .status-bar { padding: 0.6rem 1rem; font-size: 0.75rem; }
+
+  .modal-content {
+    padding: 1rem;
+    width: 96%;
+    max-height: 92vh;
+    overflow: auto;
+  }
+
+  .grand-title { font-size: 1.6rem; margin: 1rem 0; }
+
+  .modal-text { font-size: 1rem; }
+
+  .retro-choices { max-width: 100%; gap: 0.6rem; }
+
+  .retro-choice-btn {
+    font-size: 1rem;
+    padding: 0.9rem 0.9rem;
+    border-width: 1.5px;
+  }
+
+  .restart-btn { padding: 0.8rem 1.6rem; font-size: 1rem; }
+
+  .header-left .main-title { font-size: 1.6rem; }
+  .header-right, .footer-links { gap: 8px; }
+
+  /* Make the cover image taller but responsive */
+  .modal-content img { width: 100%; height: auto; object-fit: cover; }
+}
