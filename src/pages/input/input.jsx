@@ -136,6 +136,11 @@ export default function InputPage({ onComplete }) {
                         </div>
 
                         <div className="system-logs">
+                            {progress > 0 && (
+                               <p className="system-alert">
+                                    {">"} [WAIT]: No keyboard input needed beyond this point.
+                                </p>
+                            )}
                             <p>{">"} PARSING SEED: "{seed.toUpperCase()}"...</p>
                             {progress > 30 && <p>{">"} IDENTIFYING HERO: "{name.toUpperCase()}"...</p>}
                             {progress > 60 && <p>{">"} GENERATING MYTHOS PROTOCOLS...</p>}

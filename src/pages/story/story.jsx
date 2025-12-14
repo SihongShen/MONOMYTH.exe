@@ -229,7 +229,7 @@ export default function TestStoryPage({ seed, name }) {
         if (!loading) {
             setTimeout(() => {
                 setStoryState('CHOOSING');
-            }, 5000);
+            }, 3500);
         }
     };
 

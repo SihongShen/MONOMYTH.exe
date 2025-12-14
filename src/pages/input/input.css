@@ -151,10 +151,17 @@
     margin-top: 1rem;
     font-size: 0.75rem;
     color: #666;
-    height: 5rem;
-    overflow: hidden;
+    min-height: 5rem;
+    /* overflow: hidden; */
 }
 
 .system-logs p {
     margin: 2px 0;
+}
+
+.system-logs .system-alert {
+    color: #ea0808;
+    font-weight: bold;
+    margin-top: 0.5rem;
+    font-size: 1rem;
 }
