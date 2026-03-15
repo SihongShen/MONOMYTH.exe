@@ -4,7 +4,6 @@ An interactive narrative game engine based on **Joseph Campbell's Hero's Journey
 
 [Experience Live](https://monomyth.vercel.app/)
 [Demo Video](http://xhslink.com/o/8OL8y6u676w )  
-**Live demo currently down because of security issues. Please watch the video or pull to local and use your own API.**
 
 
 ## 📖 Project Overview
@@ -33,7 +32,11 @@ An interactive narrative game engine based on **Joseph Campbell's Hero's Journey
 ### AI & Machine Learning
 - **LLM**: Google Gemini 2.5 Flash (story generation)
 - **Gesture Recognition**: MediaPipe Tasks Vision (real-time hand detection)
-- **Image Generation**: Gemini Vision API (illustration generation)
+- **Image Generation**: Imagen API via `@google/genai` (illustration generation)
+
+### Backend / API
+- **Runtime**: Vercel Serverless Functions (`/api/story`, `/api/icon`, `/api/cover`)
+- **Secret Management**: `GEMINI_API_KEY` stored in server-side environment variables
 
 ### Export
 - **PDF Generation**: html2pdf.js
@@ -41,7 +44,9 @@ An interactive narrative game engine based on **Joseph Campbell's Hero's Journey
 ### Development Tools
 - **Build**: Vite
 - **Linting**: ESLint
-- **Deployment**: GitHub Pages
+- **Local Full-Stack Dev**: Vercel CLI (`vercel dev`)
+- **Package Manager**: npm
+- **Deployment**: Vercel (primary), GitHub Pages (static-only fallback)
 
 ## 🎮 Game Flow
 
@@ -89,6 +94,11 @@ Progress bar fills to 100%    →  Auto-selects choice
 
 ```
 MONOMYTH/
+├── api/                     # Serverless API routes (run on Vercel)
+│   ├── story.js             # Story generation endpoint
+│   ├── icon.js              # Background icon generation endpoint
+│   ├── cover.js             # Cover image generation endpoint
+│   └── _lib/env.js          # Local/server env loader
 ├── src/
 │   ├── pages/
 │   │   ├── opening/          # Opening page
@@ -111,11 +121,11 @@ MONOMYTH/
 │   ├── App.jsx               # Main app component (manages three-stage state)
 │   ├── constants.js          # System prompt and max steps config
 │   └── main.jsx              # App entry point
-├── public/
-│   └── index.html
+├── index.html
 ├── package.json
+├── vercel.json
 ├── vite.config.js
-├── .env.example              # Environment variables template
+├── .env.local                # Local environment variables (git-ignored)
 └── README.md                 # This file
 ```
 
@@ -123,7 +133,8 @@ MONOMYTH/
 
 ### Prerequisites
 - Node.js 18+
-- npm or yarn
+- npm
+- Vercel CLI (`npm i -g vercel`)
 - Google AI Studio API key (for Gemini access)
 
 ### Installation Steps
@@ -141,41 +152,55 @@ npm install
 
 #### 3. Configure Environment Variables
 ```bash
-cp .env.example .env
+touch .env.local
 ```
 
-Edit `.env` and add your API key:
+Edit `.env.local` and add your API key:
 ```env
-VITE_GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
 **How to Get an API Key**:
 1. Visit [Google AI Studio](https://aistudio.google.com/apikey)
 2. Click "Create API Key"
 3. Select a new or existing project
-4. Copy the generated key to your `.env` file
+4. Copy the generated key to your `.env.local` file
 
 **⚠️ Security Warning**:
 - Never hardcode API keys in source code
-- Add `.env` to `.gitignore` (already included)
+- Add `.env.local` to `.gitignore` (already included)
 - Exposed keys can be abused; protect them carefully
 
-#### 4. Start Development Server
+#### 4. Start Local Full-Stack Development (Frontend + API)
+```bash
+npm run dev:local
+```
+
+Open your browser and visit `http://localhost:3000`
+
+#### 5. Frontend-only Development (Optional)
 ```bash
 npm run dev
 ```
 
-Open your browser and visit `http://localhost:5173`
+Use this mode only for UI work. API routes in `/api/*` are not served in this mode.
 
-#### 5. Build for Production
+#### 6. Build for Production
 ```bash
 npm run build
 npm run preview  # Preview production build locally
 ```
 
-#### 6. Deploy to GitHub Pages
+#### 7. Deploy
 ```bash
 npm run deploy
+```
+
+`npm run deploy` deploys to Vercel production.
+
+If you need static-only GitHub Pages deployment:
+```bash
+npm run deploy:pages
 ```
 
 ## 🎨 Core Components Explained
