@@ -6,15 +6,18 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:local": "vercel dev --listen 3000",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "vercel --prod",
+    "predeploy:pages": "npm run build",
+    "deploy:pages": "gh-pages -d dist"
   },
   "dependencies": {
     "@google/genai": "^1.30.0",
     "@mediapipe/tasks-vision": "^0.10.22-rc.20250304",
+    "dotenv": "^17.3.1",
     "html2pdf.js": "^0.12.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"

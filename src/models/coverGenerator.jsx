@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { GoogleGenAI } from "@google/genai";
 
 export default function GeminiCover({ prompt, onImageGenerated }) {
     const [imgBase64, setImgBase64] = useState(null);
@@ -32,45 +31,31 @@ export default function GeminiCover({ prompt, onImageGenerated }) {
         const generate = async (attempt = 0) => {
             setIsLoading(true);
             try {
-                // Check API key
-                if (!import.meta.env.VITE_GEMINI_API_KEY) {
-                    throw new Error("API key not configured");
-                }
+                console.log(`🖼️ Generating Cover (Attempt ${attempt + 1}/${maxRetries + 1})`);
 
-                // initiate model
-                const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
-
-                // emphasize the style
-                const finalPrompt = `${prompt}, classical oil painting style, masterpiece, highly detailed, NO text, NO neon`;
-                
-                console.log(`🖼️ Generating Cover (Attempt ${attempt + 1}/${maxRetries + 1}) with prompt:`, finalPrompt);
-
-                // fetch api
-                const response = await ai.models.generateImages({
-                    model: 'imagen-4.0-generate-001', 
-                    prompt: finalPrompt,
-                    config: {
-                        numberOfImages: 1,
-                        aspectRatio: "16:9",
-                    },
+                const res = await fetch('/api/cover', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt }),
                 });
 
-                const generatedImage = response.generatedImages?.[0];
-                
-                // parse Base64
-                if (generatedImage?.image?.imageBytes) {
-                    const fullBase64 = `data:image/png;base64,${generatedImage.image.imageBytes}`;
-                    setImgBase64(fullBase64);
-                    setIsLoading(false);
-                    setError(null);
-                    console.log("✅ Cover Image Generated Successfully");
+                if (!res.ok) {
+                    const errData = await res.json();
+                    throw new Error(errData.error || 'Cover generation failed');
+                }
 
-                    // send to parent component
-                    if (onImageGenerated) {
-                        onImageGenerated(fullBase64);
-                    }
-                } else {
+                const data = await res.json();
+                if (!data.imageBase64) {
                     throw new Error("No image data received. Safety filter might be triggered.");
+                }
+
+                setImgBase64(data.imageBase64);
+                setIsLoading(false);
+                setError(null);
+                console.log("✅ Cover Image Generated Successfully");
+
+                if (onImageGenerated) {
+                    onImageGenerated(data.imageBase64);
                 }
             } catch (err) {
                 console.error(`❌ Cover Generation Failed (Attempt ${attempt + 1}):`, err.message);

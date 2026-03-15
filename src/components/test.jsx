@@ -1,6 +1,5 @@
 // test file for image generator
 import React, { useState } from 'react';
-import { GoogleGenAI } from "@google/genai";
 import GeminiCover from '../models/coverGenerator'; 
 
 export default function SystemCheck() {
@@ -11,15 +10,16 @@ export default function SystemCheck() {
     const testTextApi = async () => {
         setTextStatus("PINGING...");
         try {
-            const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-            const genAI = new GoogleGenAI({ apiKey });
-            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-            
-            const result = await model.generateContent("Reply with 'System Operational' if you receive this.");
-            const response = result.response.text();
-            
+            const res = await fetch('/api/story', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: "Reply with 'System Operational' if you receive this.", history: [] }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error);
+
             setTextStatus("SUCCESS");
-            setTextResult(response);
+            setTextResult(data.result);
         } catch (e) {
             setTextStatus("FAILED");
             setTextResult(e.message);

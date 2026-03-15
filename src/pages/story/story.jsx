@@ -1,7 +1,5 @@
 import React, { useState, useRef, useEffect} from 'react';
-// get prompt instructions
-import { SYSTEM_INSTRUCTION, MAX_STEPS } from '../../constants.js';
-import { GoogleGenAI } from "@google/genai";
+import { MAX_STEPS } from '../../constants.js';
 // css file
 import './story.css';
 import Header from '../../components/header/header.jsx';
@@ -70,7 +68,8 @@ export default function TestStoryPage({ seed, name }) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     // for storing story nodes and contents
-    const [chatSession, setChatSession] = useState(null);
+    // geminiHistory tracks the raw conversation in Gemini format for stateless API calls
+    const [geminiHistory, setGeminiHistory] = useState([]);
     const [history, setHistory] = useState([]);
     // reading choosing
     const [storyState, setStoryState] = useState('READING');
@@ -101,35 +100,32 @@ export default function TestStoryPage({ seed, name }) {
         setLoading(true);
         setError(null);
         setHistory([]);
+        setGeminiHistory([]);
         setIsModalOpen(false);
         setStoryState('READING');
         setFinalCoverBase64(null);
 
         try {
-            // initiate LLM
-            const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+            const userMessage = `User Seed: "${seed}". Hero Name: "${name}". Begin the story at Step 1. Output JSON.`;
 
-            if (!apiKey) {
-                throw new Error("API Key lost！Please check .env file.");
+            const res = await fetch('/api/story', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: userMessage, history: [] }),
+            });
+
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.error || 'Story API request failed');
             }
 
-            const genAI = new GoogleGenAI({apiKey: apiKey});
+            const data = await res.json();
+            const node = parseAndValidate(data.result);
 
-            const chat = genAI.chats.create({
-                model: "gemini-2.5-flash",
-                config: {
-                    systemInstruction: SYSTEM_INSTRUCTION,
-                    responseMimeType: "application/json",
-                    temperature: 1.2,
-                },
-            });
-            setChatSession(chat);
-
-            const response = await chat.sendMessage({
-                message: `User Seed: "${seed}". Hero Name: "${name}". Begin the story at Step 1. Output JSON.`
-            })
-
-            const node = parseAndValidate(response.text);
+            setGeminiHistory([
+                { role: 'user', parts: [{ text: userMessage }] },
+                { role: 'model', parts: [{ text: data.result }] },
+            ]);
             setHistory([node]);
 
         } catch (err) {
@@ -142,8 +138,6 @@ export default function TestStoryPage({ seed, name }) {
 
     // choosing part logic
     const handleChoice =  async (choiceId, shortDesc) => {
-        if(!chatSession) return;
-        
         // Update history with selected choice
         const currentStepIndex = history.length - 1;
         const newHistory = [...history];
@@ -185,11 +179,25 @@ export default function TestStoryPage({ seed, name }) {
                     `;
             }
 
-            const response = await chatSession.sendMessage({
-                message: prompt
+            const res = await fetch('/api/story', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: prompt, history: geminiHistory }),
             });
 
-            const nextNode = parseAndValidate(response.text);
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.error || 'Story API request failed');
+            }
+
+            const data = await res.json();
+            const nextNode = parseAndValidate(data.result);
+
+            setGeminiHistory(prev => [
+                ...prev,
+                { role: 'user', parts: [{ text: prompt }] },
+                { role: 'model', parts: [{ text: data.result }] },
+            ]);
 
             nextNode.step = nextStep;
 
